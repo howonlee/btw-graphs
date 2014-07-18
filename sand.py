@@ -5,6 +5,8 @@ import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as pyplot
 
+import networkx as nx
+
 class Sand(object):
 	def __init__(self, n, critLevel):
 		self.n = n
@@ -28,18 +30,18 @@ class Sand(object):
 		Now, to make the graphical model corresponding to the stored "graphs" here
 		the "graphs" are really the series of coordinates of the avalanching sand
 		"""
-		graphs = {}
+		graphs = set()
 		if x < 0 or x >= self.n or y < 0 or y >= self.n:
-			return graphs
+			return set()
 		self.array[x][y] += 1
 		if self.array[x][y] >= self.critLevel:
-			graphs[(x, y)] = True
+			graphs.add((x,y))
 			self.numAvalanches += 1
 			self.array[x][y] -= 4
-			graphs.update(self.increase(x+1, y))
-			graphs.update(self.increase(x-1, y))
-			graphs.update(self.increase(x, y+1))
-			graphs.update(self.increase(x, y-1))
+			graphs.union(self.increase(x+1, y))
+			graphs.union(self.increase(x-1, y))
+			graphs.union(self.increase(x, y+1))
+			graphs.union(self.increase(x, y-1))
 		return graphs
 
 	def step(self):
@@ -75,8 +77,21 @@ class SandViewer(object):
 			self.sand.step()
 			self.update()
 
+class SandGraph(object):
+	def __init__(self, graphList):
+		self.graph = nx.Graph()
+		for st in graphList:
+			self.graph.add_edges_from(st)
+
+	def info(self):
+		print "order: ", self.graph.order()
+		print "size: ", self.graph.size()
+
 if __name__ == '__main__':
-	sand = Sand(n=50, critLevel=4)
-	viewer = SandViewer(sand)
-	viewer.animate(1000)
+	sand = Sand(n=5000, critLevel=4)
+	sand.loop(steps=100000)
+	graph = SandGraph(sand.graphs)
+	graph.info()
+	#viewer = SandViewer(sand)
+	#viewer.animate(1000)
 

@@ -25,7 +25,8 @@ class Sand(object):
 	def increase(self, x, y):
 		"""
 		This works!
-		Now, to make the graphical model corresponding
+		Now, to make the graphical model corresponding to the stored "graphs" here
+		the "graphs" are really the series of coordinates of the avalanching sand
 		"""
 		graphs = {}
 		if x < 0 or x >= self.n or y < 0 or y >= self.n:

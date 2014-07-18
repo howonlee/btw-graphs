@@ -22,8 +22,12 @@ class Sand(object):
 		[self.step() for i in xrange(steps)]
 
 	def increase(self, x, y):
+		"""
+		This works!
+		Now, to make the graphical model corresponding
+		"""
 		if x < 0 or x >= self.n or y < 0 or y >= self.n:
-			return
+			return #actually return something?
 		self.array[x][y] += 1
 		if self.array[x][y] >= self.critLevel:
 			self.numAvalanches += 1
@@ -32,6 +36,7 @@ class Sand(object):
 			self.increase(x-1, y)
 			self.increase(x, y+1)
 			self.increase(x, y-1)
+			#return something?
 
 	def step(self):
 		#increase one part of the array

@@ -1,41 +1,16 @@
-import numpy
-import scipy.ndimage
+import numpy as np
+import numpy.random as npr
 
 import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as pyplot
 
-def vfunc(conv, rand, p=0.05, f=0.005):
-	#should only have to change the convolution here
-	#maybe exponential developments here
-	#over "4" = minus "4"
-	#tree + neighbor on fire = burning
-	if conv >= 110:
-		return 10
-	#no tree, check for new tree
-	if conv < 100:
-		if rand < p:
-			return 1
-		else:
-			return 0
-	#ow., check for fire
-	if rand < f:
-		return 10
-	else:
-		return 1
-
-update_func = numpy.vectorize(vfunc, [numpy.int8])
-
-class Sandpile(object):
-	"""
-	Bak-Chen-Tang sandpile fire model
-	n: num of rows and columns
-	"""
-	def __init__(self, n, mode='wrap'):
+class Sand(object):
+	def __init__(self, n, critLevel):
 		self.n = n
-		self.mode = mode
-		self.array = numpy.zeros((n, n), numpy.int8)
-		self.weights = numpy.array([[1,1,1],[1,100,1],[1,1,1]])
+		self.critLevel = critLevel
+		self.array = npr.randint(critLevel, size=(n, n))
+		self.numAvalanches = 0
 
 	def get_array(self, start=0, end=None):
 		if start==0 and end==None:
@@ -46,25 +21,37 @@ class Sandpile(object):
 	def loop(self, steps=1):
 		[self.step() for i in xrange(steps)]
 
+	def increase(self, x, y):
+		if x < 0 or x >= self.n or y < 0 or y >= self.n:
+			return
+		self.array[x][y] += 1
+		if self.array[x][y] >= self.critLevel:
+			self.numAvalanches += 1
+			self.array[x][y] -= 4
+			self.increase(x+1, y)
+			self.increase(x-1, y)
+			self.increase(x, y+1)
+			self.increase(x, y-1)
+
 	def step(self):
-		con = scipy.ndimage.filters.convolve(self.array, self.weights, mode=self.mode)
-		rand = numpy.random.rand(self.n, self.n)
-		self.array = update_func(con, rand)
+		#increase one part of the array
+		self.increase(npr.randint(self.n-1), npr.randint(self.n-1))
+		for x in xrange(self.n):
+			for y in xrange(self.n):
+				if self.array[x][y] >= self.critLevel:
+					self.numAvalanches += 1
+					self.array[x][y] -= 4
+					self.increase(x+1, y)
+					self.increase(x-1, y)
+					self.increase(x, y+1)
+					self.increase(x, y-1)
 
-	def count(self):
-		data = []
-		a = numpy.int8(self.array == 1) #the number of trees
-		for i in range(self.n):
-			total = numpy.sum(a[:i, :i])
-			data.append((i+1, total))
-		return zip(*data)
-
-class SandpileViewer(object):
-	def __init__(self, sandpile, cmap=matplotlib.cm.gray_r):
-		self.sandpile = sandpile
+class SandViewer(object):
+	def __init__(self, sand, cmap=matplotlib.cm.gray_r):
+		self.sand = sand
 		self.cmap = cmap
 		self.fig = pyplot.figure()
-		pyplot.axis([0, sandpile.n, 0, sandpile.n])
+		pyplot.axis([0, sand.n, 0, sand.n])
 		pyplot.xticks([])
 		pyplot.yticks([])
 		self.pcolor = None
@@ -73,7 +60,7 @@ class SandpileViewer(object):
 	def update(self):
 		if self.pcolor:
 			self.pcolor.remove()
-		a = self.sandpile.array
+		a = self.sand.array
 		self.pcolor = pyplot.pcolor(a, vmax=10, cmap=self.cmap)
 		self.fig.canvas.draw()
 
@@ -84,10 +71,11 @@ class SandpileViewer(object):
 
 	def animate_callback(self):
 		for i in range(self.steps):
-			self.sandpile.step()
+			self.sand.step()
 			self.update()
 
 if __name__ == '__main__':
-	sandpile = Sandpile(50)
-	viewer = SandpileViewer(sandpile)
-	viewer.animate(100)
+	sand = Sand(n=50, critLevel=4)
+	viewer = SandViewer(sand)
+	viewer.animate(1000)
+

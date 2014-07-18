@@ -10,6 +10,7 @@ class Sand(object):
 		self.n = n
 		self.critLevel = critLevel
 		self.array = npr.randint(critLevel, size=(n, n))
+		self.graphs = []
 		self.numAvalanches = 0
 
 	def get_array(self, start=0, end=None):
@@ -26,30 +27,23 @@ class Sand(object):
 		This works!
 		Now, to make the graphical model corresponding
 		"""
+		graphs = {}
 		if x < 0 or x >= self.n or y < 0 or y >= self.n:
-			return #actually return something?
+			return graphs
 		self.array[x][y] += 1
 		if self.array[x][y] >= self.critLevel:
+			graphs[(x, y)] = True
 			self.numAvalanches += 1
 			self.array[x][y] -= 4
-			self.increase(x+1, y)
-			self.increase(x-1, y)
-			self.increase(x, y+1)
-			self.increase(x, y-1)
-			#return something?
+			graphs.update(self.increase(x+1, y))
+			graphs.update(self.increase(x-1, y))
+			graphs.update(self.increase(x, y+1))
+			graphs.update(self.increase(x, y-1))
+		return graphs
 
 	def step(self):
-		#increase one part of the array
-		self.increase(npr.randint(self.n-1), npr.randint(self.n-1))
-		for x in xrange(self.n):
-			for y in xrange(self.n):
-				if self.array[x][y] >= self.critLevel:
-					self.numAvalanches += 1
-					self.array[x][y] -= 4
-					self.increase(x+1, y)
-					self.increase(x-1, y)
-					self.increase(x, y+1)
-					self.increase(x, y-1)
+		stepgraph = self.increase(npr.randint(self.n-1), npr.randint(self.n-1))
+		self.graphs.append(stepgraph)
 
 class SandViewer(object):
 	def __init__(self, sand, cmap=matplotlib.cm.gray_r):
@@ -68,6 +62,7 @@ class SandViewer(object):
 		a = self.sand.array
 		self.pcolor = pyplot.pcolor(a, vmax=10, cmap=self.cmap)
 		self.fig.canvas.draw()
+		#print self.sand.graphs
 
 	def animate(self, steps=10):
 		self.steps = steps

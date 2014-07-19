@@ -1,12 +1,15 @@
 import numpy as np
 import numpy.random as npr
 import uuid
+import collections
 
 import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as pyplot
 
 import networkx as nx
+
+#figure out the data structure, all the algorithms will flow from there
 
 class Sand(object):
 	def __init__(self, n, critLevel):
@@ -25,24 +28,24 @@ class Sand(object):
 	def loop(self, steps=1):
 		[self.step() for i in xrange(steps)]
 
-	def increase(self, x, y, ilevel=0):
+	def increase(self, x, y):
 		"""
 		This works!
 		Now, to make the graphical model corresponding to the stored "graphs" here
 		the "graphs" are really the series of coordinates of the avalanching sand
 		"""
-		graphs = set()
+		graphs = collections.Counter()
 		if x < 0 or x >= self.n or y < 0 or y >= self.n:
-			return set()
+			return collections.Counter()
 		self.array[x][y] += 1
 		if self.array[x][y] >= self.critLevel:
-			graphs.add((x,y,ilevel))
+			graphs[(x,y)] += 1
 			self.numAvalanches += 1
 			self.array[x][y] -= 4
-			graphs.union(self.increase(x+1, y, ilevel=ilevel+1))
-			graphs.union(self.increase(x-1, y, ilevel=ilevel+1))
-			graphs.union(self.increase(x, y+1, ilevel=ilevel+1))
-			graphs.union(self.increase(x, y-1, ilevel=ilevel+1))
+			graphs += self.increase(x+1, y)
+			graphs += self.increase(x-1, y)
+			graphs += self.increase(x, y+1)
+			graphs += self.increase(x, y-1)
 		return graphs
 
 	def step(self):
@@ -70,7 +73,7 @@ class SandViewer(object):
 
 	def animate(self, steps=10):
 		self.steps = steps
-		self.fig.canvas.manager.window.after(1000, self.animate_callback)
+		self.fig.canvas.manager.window.after(10, self.animate_callback)
 		pyplot.show()
 
 	def animate_callback(self):
@@ -88,18 +91,20 @@ class SandGraph(object):
 		print "order: ", self.graph.order()
 		print "size: ", self.graph.size()
 		degree_sequence = sorted(nx.degree(self.graph).values(), reverse=True)
-		print "degree sequence: ", degree_sequence
+		print "degree sequence: ", degree_sequence #want an actual frequency thing
 		pyplot.loglog(degree_sequence, 'b-', marker='o')
 		pyplot.title('degree rank plot')
 		pyplot.ylabel('degree')
-		pyplot.xlabel('rank')
+		pyplot.xlabel('occurence')
 		pyplot.show()
 
 if __name__ == '__main__':
-	sand = Sand(n=500, critLevel=4)
-	sand.loop(steps=40000)
-	graph = SandGraph(sand.graphs)
-	graph.info() #multigraph? something like that
+	sand = Sand(n=50, critLevel=4)
+	sand.loop(steps=5000)
+	print "first loop done"
+	print sand.graphs
+	#sand.loop(steps=20000)
+	#graph = SandGraph(sand.graphs)
+	#graph.info() #multigraph? something like that
 	#viewer = SandViewer(sand)
-	#viewer.animate(1000)
-
+	#viewer.animate(10000)

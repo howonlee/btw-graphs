@@ -1,5 +1,6 @@
 import numpy as np
 import numpy.random as npr
+import uuid
 
 import matplotlib
 matplotlib.use('TkAgg')
@@ -24,7 +25,7 @@ class Sand(object):
 	def loop(self, steps=1):
 		[self.step() for i in xrange(steps)]
 
-	def increase(self, x, y):
+	def increase(self, x, y, ilevel=0):
 		"""
 		This works!
 		Now, to make the graphical model corresponding to the stored "graphs" here
@@ -35,13 +36,13 @@ class Sand(object):
 			return set()
 		self.array[x][y] += 1
 		if self.array[x][y] >= self.critLevel:
-			graphs.add((x,y))
+			graphs.add((x,y,ilevel))
 			self.numAvalanches += 1
 			self.array[x][y] -= 4
-			graphs.union(self.increase(x+1, y))
-			graphs.union(self.increase(x-1, y))
-			graphs.union(self.increase(x, y+1))
-			graphs.union(self.increase(x, y-1))
+			graphs.union(self.increase(x+1, y, ilevel=ilevel+1))
+			graphs.union(self.increase(x-1, y, ilevel=ilevel+1))
+			graphs.union(self.increase(x, y+1, ilevel=ilevel+1))
+			graphs.union(self.increase(x, y-1, ilevel=ilevel+1))
 		return graphs
 
 	def step(self):
@@ -86,12 +87,19 @@ class SandGraph(object):
 	def info(self):
 		print "order: ", self.graph.order()
 		print "size: ", self.graph.size()
+		degree_sequence = sorted(nx.degree(self.graph).values(), reverse=True)
+		print "degree sequence: ", degree_sequence
+		pyplot.loglog(degree_sequence, 'b-', marker='o')
+		pyplot.title('degree rank plot')
+		pyplot.ylabel('degree')
+		pyplot.xlabel('rank')
+		pyplot.show()
 
 if __name__ == '__main__':
-	sand = Sand(n=5000, critLevel=4)
-	sand.loop(steps=100000)
+	sand = Sand(n=500, critLevel=4)
+	sand.loop(steps=40000)
 	graph = SandGraph(sand.graphs)
-	graph.info()
+	graph.info() #multigraph? something like that
 	#viewer = SandViewer(sand)
 	#viewer.animate(1000)
 

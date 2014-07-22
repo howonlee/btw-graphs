@@ -90,7 +90,7 @@ class SandGraph(object):
 	def degree_dist(self):
 		print "order: ", self.graph.order()
 		print "size: ", self.graph.size()
-		pyplot.hist(nx.degree(self.graph).values(), log=True)
+		pyplot.hist(nx.degree(self.graph).values(), log=True, bins=20)
 		pyplot.title('degree histogram log plot')
 		pyplot.show()
 
@@ -105,8 +105,8 @@ class SandGraph(object):
 if __name__ == '__main__':
 	#make the graphs
 	#investigate the properties of the graphs
-	sand = Sand(n=1000, critLevel=4)
-	sand.loop(steps=1000)
+	sand = Sand(n=5000, critLevel=4)
+	sand.loop(steps=2500)
 	print "first loop done"
 	#print sand.graphs
 	#sand.loop(steps=20000)

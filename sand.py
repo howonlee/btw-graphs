@@ -9,9 +9,10 @@ import matplotlib.pyplot as pyplot
 
 import networkx as nx
 
-#figure out the data structure, all the algorithms will flow from there
-
 class Sand(object):
+	"""
+	BTW self-organized criticality model here for teh wins
+	"""
 	def __init__(self, n, critLevel):
 		self.n = n
 		self.critLevel = critLevel
@@ -30,9 +31,8 @@ class Sand(object):
 
 	def increase(self, x, y):
 		"""
-		This works!
-		Now, to make the graphical model corresponding to the stored "graphs" here
-		the "graphs" are really the series of coordinates of the avalanching sand
+		Note dat recursive call
+		f--ing up our ability to study anything about degree like 50,000
 		"""
 		graphs = collections.Counter()
 		if x < 0 or x >= self.n or y < 0 or y >= self.n:
@@ -87,24 +87,32 @@ class SandGraph(object):
 		for st in graphList:
 			self.graph.add_edges_from(st)
 
-	def info(self):
+	def degree_dist(self):
 		print "order: ", self.graph.order()
 		print "size: ", self.graph.size()
-		pyplot.hist(nx.degree(self.graph).values())
-		pyplot.title('degree rank plot')
-		pyplot.ylabel('degree')
-		pyplot.xlabel('occurence')
+		pyplot.hist(nx.degree(self.graph).values(), log=True)
+		pyplot.title('degree histogram log plot')
 		pyplot.show()
+
+	def avg_path_length(self):
+		for g in nx.connected_component_subgraphs(self.graph):
+			print "average shortest path length: ", nx.average_shortest_path_length(g)
+
+	def clustering_coefficient(self):
+		for g in nx.connected_component_subgraphs(self.graph):
+			print "clustering coeff: ", nx.average_clustering(g)
 
 if __name__ == '__main__':
 	#make the graphs
 	#investigate the properties of the graphs
-	sand = Sand(n=500, critLevel=4)
-	sand.loop(steps=10000)
+	sand = Sand(n=1000, critLevel=4)
+	sand.loop(steps=1000)
 	print "first loop done"
 	#print sand.graphs
 	#sand.loop(steps=20000)
 	graph = SandGraph(sand.graphs)
-	graph.info() #multigraph? something like that
+	graph.degree_dist()
+	#graph.avg_path_length()
+	#graph.clustering_coefficient()
 	#viewer = SandViewer(sand)
 	#viewer.animate(10000)

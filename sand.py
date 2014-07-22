@@ -90,21 +90,21 @@ class SandGraph(object):
 	def info(self):
 		print "order: ", self.graph.order()
 		print "size: ", self.graph.size()
-		degree_sequence = sorted(nx.degree(self.graph).values(), reverse=True)
-		print "degree sequence: ", degree_sequence #want an actual frequency thing
-		pyplot.loglog(degree_sequence, 'b-', marker='o')
+		pyplot.hist(nx.degree(self.graph).values())
 		pyplot.title('degree rank plot')
 		pyplot.ylabel('degree')
 		pyplot.xlabel('occurence')
 		pyplot.show()
 
 if __name__ == '__main__':
-	sand = Sand(n=50, critLevel=4)
-	sand.loop(steps=5000)
+	#make the graphs
+	#investigate the properties of the graphs
+	sand = Sand(n=500, critLevel=4)
+	sand.loop(steps=10000)
 	print "first loop done"
-	print sand.graphs
+	#print sand.graphs
 	#sand.loop(steps=20000)
-	#graph = SandGraph(sand.graphs)
-	#graph.info() #multigraph? something like that
+	graph = SandGraph(sand.graphs)
+	graph.info() #multigraph? something like that
 	#viewer = SandViewer(sand)
 	#viewer.animate(10000)

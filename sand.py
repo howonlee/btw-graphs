@@ -103,17 +103,33 @@ class SandGraph(object):
 			print "path length ratio: ", nx.average_shortest_path_length(g) / g.order()
 			print "clustering coeff: ", nx.average_clustering(g)
 
+	def show_largest_component(self, file_name):
+		pyplot.figure(num=None, figsize=(20, 20), dpi=80)
+		pyplot.axis('off')
+		fig = pyplot.figure(1)
+		pos = nx.spring_layout(self.graph)
+		nx.draw_networkx_nodes(self.graph, pos)
+		nx.draw_networkx_edges(self.graph, pos)
+		nx.draw_networkx_labels(self.graph, pos)
+		cut = 1.00
+		xmax = cut * max(xx for xx, yy in pos.values())
+		ymax = cut * max(yy for xx, yy in pos.values())
+		pyplot.xlim(0, xmax)
+		pyplot.ylim(0, ymax)
+		pyplot.savefig(file_name,bbox_inches="tight")
+
 if __name__ == '__main__':
 	#make the graphs
 	#investigate the properties of the graphs
-	for i in range(10):
-		sand = Sand(n=i*1000, critLevel=4)
-		sand.loop(steps=i*500)
-		print "loop ", i, " done"
-		print "===================="
-		graph = SandGraph(sand.graphs)
-		graph.subcomponent_stats()
-		#graph.degree_dist()
+	i = 3
+	sand = Sand(n=i*1000, critLevel=4)
+	sand.loop(steps=i*500)
+	print "loop ", i, " done"
+	print "===================="
+	graph = SandGraph(sand.graphs)
+	graph.show_largest_component("large_component.pdf")
+	#graph.subcomponent_stats()
+	#graph.degree_dist()
 	#print sand.graphs
 	#sand.loop(steps=20000)
 	#viewer = SandViewer(sand)

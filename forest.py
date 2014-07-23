@@ -5,6 +5,8 @@ import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as pyplot
 
+#mostly copied over from the Think Complexity book, but pretty to look at, isn't it?
+
 def vfunc(conv, rand, p=0.05, f=0.005):
 	#tree + neighbor on fire = burning
 	if conv >= 110:

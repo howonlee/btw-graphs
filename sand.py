@@ -94,25 +94,31 @@ class SandGraph(object):
 		pyplot.title('degree histogram log plot')
 		pyplot.show()
 
-	def avg_path_length(self):
+	def subcomponent_stats(self, g_bound=10):
 		for g in nx.connected_component_subgraphs(self.graph):
+			if g.order() < g_bound:
+				continue
+			print "g order: ", g.order()
+			print "g size: ", g.order()
 			print "average shortest path length: ", nx.average_shortest_path_length(g)
-
-	def clustering_coefficient(self):
-		for g in nx.connected_component_subgraphs(self.graph):
+			print "path length ratio: ", nx.average_shortest_path_length(g) / g.order()
 			print "clustering coeff: ", nx.average_clustering(g)
 
 if __name__ == '__main__':
 	#make the graphs
 	#investigate the properties of the graphs
-	sand = Sand(n=5000, critLevel=4)
-	sand.loop(steps=2500)
-	print "first loop done"
+	for i in range(10):
+		try:
+			sand = Sand(n=i*1000, critLevel=4)
+			sand.loop(steps=i*500)
+			print "loop ", i, " done"
+			print "===================="
+			graph = SandGraph(sand.graphs)
+			graph.subcomponent_stats()
+			#graph.degree_dist()
+		except:
+			print "err"
 	#print sand.graphs
 	#sand.loop(steps=20000)
-	graph = SandGraph(sand.graphs)
-	graph.degree_dist()
-	#graph.avg_path_length()
-	#graph.clustering_coefficient()
 	#viewer = SandViewer(sand)
 	#viewer.animate(10000)

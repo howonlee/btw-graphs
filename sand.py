@@ -11,7 +11,7 @@ import networkx as nx
 
 class Sand(object):
 	"""
-	Bak Tang Wiesenfeld self-organized criticality model here for teh wins
+	Bak Tang Wiesenfeld self-organized criticality model here
 	"""
 	def __init__(self, n, critLevel):
 		self.n = n
@@ -30,10 +30,6 @@ class Sand(object):
 		[self.step() for i in xrange(steps)]
 
 	def increase(self, x, y):
-		"""
-		Note dat recursive call
-		f--ing up our ability to study anything about degree like 50,000
-		"""
 		graphs = collections.Counter()
 		if x < 0 or x >= self.n or y < 0 or y >= self.n:
 			return collections.Counter()

@@ -34,21 +34,21 @@ class Sand(object):
 		Note dat recursive call
 		f--ing up our ability to study anything about degree like 50,000
 		"""
-		graphs = nx.DiGraph()
+		graphs = collections.Counter()
 		if x < 0 or x >= self.n or y < 0 or y >= self.n:
-			return nx.DiGraph()
+			return collections.Counter()
 		self.array[x][y] += 1
 		if self.array[x][y] >= self.critLevel:
-			graphs.add_edge((x+1, y), (x,y))
-			graphs.add_edge((x-1, y), (x,y))
-			graphs.add_edge((x, y+1), (x,y))
-			graphs.add_edge((x, y-1), (x,y)) # and so on
+			graphs[(x+1, y)] += 1
+			graphs[(x-1, y)] += 1
+			graphs[(x, y+1)] += 1
+			graphs[(x, y-1)] += 1
 			self.numAvalanches += 1
 			self.array[x][y] -= 4
-			graphs = nx.disjoint_union(graphs, self.increase(x+1, y))
-			graphs = nx.disjoint_union(graphs, self.increase(x-1, y))
-			graphs = nx.disjoint_union(graphs, self.increase(x, y+1))
-			graphs = nx.disjoint_union(graphs, self.increase(x, y-1))
+			graphs += self.increase(x+1, y)
+			graphs += self.increase(x-1, y)
+			graphs += self.increase(x, y+1)
+			graphs += self.increase(x, y-1)
 		return graphs
 
 	def step(self):
@@ -111,16 +111,13 @@ if __name__ == '__main__':
 	#make the graphs
 	#investigate the properties of the graphs
 	for i in range(10):
-		try:
-			sand = Sand(n=i*1000, critLevel=4)
-			sand.loop(steps=i*500)
-			print "loop ", i, " done"
-			print "===================="
-			graph = SandGraph(sand.graphs)
-			graph.subcomponent_stats()
-			#graph.degree_dist()
-		except:
-			print "err"
+		sand = Sand(n=i*1000, critLevel=4)
+		sand.loop(steps=i*500)
+		print "loop ", i, " done"
+		print "===================="
+		graph = SandGraph(sand.graphs)
+		graph.subcomponent_stats()
+		#graph.degree_dist()
 	#print sand.graphs
 	#sand.loop(steps=20000)
 	#viewer = SandViewer(sand)

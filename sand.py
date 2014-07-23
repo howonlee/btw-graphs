@@ -34,18 +34,21 @@ class Sand(object):
 		Note dat recursive call
 		f--ing up our ability to study anything about degree like 50,000
 		"""
-		graphs = collections.Counter()
+		graphs = nx.DiGraph()
 		if x < 0 or x >= self.n or y < 0 or y >= self.n:
-			return collections.Counter()
+			return nx.DiGraph()
 		self.array[x][y] += 1
 		if self.array[x][y] >= self.critLevel:
-			graphs[(x,y)] += 1
+			graphs.add_edge((x+1, y), (x,y))
+			graphs.add_edge((x-1, y), (x,y))
+			graphs.add_edge((x, y+1), (x,y))
+			graphs.add_edge((x, y-1), (x,y)) # and so on
 			self.numAvalanches += 1
 			self.array[x][y] -= 4
-			graphs += self.increase(x+1, y)
-			graphs += self.increase(x-1, y)
-			graphs += self.increase(x, y+1)
-			graphs += self.increase(x, y-1)
+			graphs = nx.disjoint_union(graphs, self.increase(x+1, y))
+			graphs = nx.disjoint_union(graphs, self.increase(x-1, y))
+			graphs = nx.disjoint_union(graphs, self.increase(x, y+1))
+			graphs = nx.disjoint_union(graphs, self.increase(x, y-1))
 		return graphs
 
 	def step(self):

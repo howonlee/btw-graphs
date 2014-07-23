@@ -11,7 +11,7 @@ import networkx as nx
 
 class Sand(object):
 	"""
-	BTW self-organized criticality model here for teh wins
+	Bak Tang Wiesenfeld self-organized criticality model here for teh wins
 	"""
 	def __init__(self, n, critLevel):
 		self.n = n

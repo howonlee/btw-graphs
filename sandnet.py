@@ -1,5 +1,6 @@
 import numpy as np
 import numpy.random as npr
+from random import choice
 import uuid
 import collections
 
@@ -18,25 +19,23 @@ class SandNet(object):
 	def __init__(self, n, critLevel):
 		self.n = n
 		self.critLevel = critLevel
-		self.graph = nx.Graph() #maybe directed?
+		self.graph = nx.DiGraph()
+		#initialize the graph properly
 		self.numAvalanches = 0
 
 	def loop(self, steps=1):
 		[self.step() for i in xrange(steps)]
 
-	def increase(self, x, y):
-		graphs = collections.Counter()
-		if x < 0 or x >= self.n or y < 0 or y >= self.n:
-			return collections.Counter()
-		self.array[x][y] += 1 # something
-		if self.array[x][y] >= self.critLevel: #something
-			the above critlevel node.val -= 4
-			for each neighboring node from the above critlevel node:
+	def increase(self, chosenNode):
+		chosenNode.sandval += 1
+		if chosenNode.sandval >= self.critLevel: #something
+			chosenNode.sandval -= 4
+			for neighbor in nx.DiGraph.neighbors(chosenNode):
 				self.numAvalanches += 1
-				increase(node)
+				increase(neighbor)
 
 	def step(self):
-		stepgraph = self.increase(npr.randint(self.n-1), npr.randint(self.n-1))
+		self.increase(choice(self.graph.nodes()))
 
 class SandViewer(object):
 	"""

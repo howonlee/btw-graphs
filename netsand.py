@@ -16,18 +16,18 @@ class SandNet(object):
 	Not to be confused with the sand-graph in the sand model, which _makes_ a graph _from_ the lattice
 	here, there is no lattice, just the graph
 	"""
-	def __init__(self, corpus, critLevel):
+	def __init__(self, corpus):
 		self.corpus = corpus
-		self.critLevel = critLevel
 		self.graph = nx.DiGraph()
 		prevWord = None
 		wordct = collections.Counter()
 		for word in corpus:
-			wordct[word] += 1
-			self.graph.add_node(word, sandval=randint(0, 4), word=word)
+			self.graph.add_node(word, sandval=randint(0, 25), word=word)
 			if prevWord:
 				self.graph.add_edge(prevWord, word)
 			prevWord = word
+		print "order: ", self.graph.order()
+		print "size: ", self.graph.size()
 		self.numAvalanches = 0
 
 	def loop(self, steps=1):
@@ -38,20 +38,23 @@ class SandNet(object):
 		Increase
 		should be iterative, not recursive this time
 		"""
-		if type(chosenNode) == tuple:
-			chosenData = self.graph.node[chosenNode[0]]
-		elif type(chosenNode) == str:
-			chosenData = self.graph.node[chosenNode]
-		else:
-			raise
-		chosenData["sandval"] += 1
+		nodes = [chosenNode]
 		words = ""
-		if chosenData["sandval"] >= self.critLevel: #something
-			self.numAvalanches += 1
-			chosenData["sandval"] -= 4
-			words = chosenData["word"]
-			for neighbor in self.graph.neighbors(chosenData["word"]):
-				words = words + " " + self.increase(neighbor)
+		while len(nodes) >= 1:
+			currNode = nodes.pop()
+			if type(currNode) == tuple:
+				currData = self.graph.node[currNode[0]]
+				currOutdegree = self.graph.out_degree(currNode[0])
+			elif type(currNode) == str:
+				currData = self.graph.node[currNode]
+				currOutdegree = self.graph.out_degree(currNode)
+			currData["sandval"] += 1
+			if currData["sandval"] >= currOutdegree:
+				self.numAvalanches += 1
+				currData["sandval"] -= currOutdegree
+				words = words + currData["word"] + " "
+				for neighbor in self.graph.neighbors(currData["word"]):
+					nodes.append(neighbor)
 		return words
 
 	def step(self):
@@ -60,7 +63,7 @@ class SandNet(object):
 if __name__ == '__main__':
 	with open("corpus.txt", "r") as corpusFile:
 		corpus = corpusFile.read().split()
-		net = SandNet(corpus=corpus, critLevel=4)
-		output = net.loop(steps=5000)
+		net = SandNet(corpus=corpus)
+		output = net.loop(steps=100)
 		output = filter(lambda x: len(x) > 1, output)
 		print output

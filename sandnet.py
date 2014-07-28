@@ -16,26 +16,31 @@ class SandNet(object):
 	Not to be confused with the sand-graph in the sand model, which _makes_ a graph _from_ the lattice
 	here, there is no lattice, just the graph
 	"""
-	def __init__(self, n, critLevel):
-		self.n = n
+	def __init__(self, corpus, critLevel):
+		self.corpus = corpus
 		self.critLevel = critLevel
 		self.graph = nx.DiGraph()
+		for word in corpus:
+			go through the graph and make the graph
 		#initialize the graph properly
 		self.numAvalanches = 0
 
 	def loop(self, steps=1):
-		[self.step() for i in xrange(steps)]
+		return [self.step() for i in xrange(steps)]
 
 	def increase(self, chosenNode):
 		chosenNode.sandval += 1
+		words = []
 		if chosenNode.sandval >= self.critLevel: #something
 			chosenNode.sandval -= 4
+			words.append(chosenNode.word)
 			for neighbor in nx.DiGraph.neighbors(chosenNode):
 				self.numAvalanches += 1
-				increase(neighbor)
+				words = words + increase(neighbor)
+		return words
 
 	def step(self):
-		self.increase(choice(self.graph.nodes()))
+		return self.increase(choice(self.graph.nodes()))
 
 class SandViewer(object):
 	"""
@@ -70,18 +75,8 @@ class SandViewer(object):
 			self.update()
 
 if __name__ == '__main__':
-	#make the graphs
-	#investigate the properties of the graphs
-	i = 3
-	sand = Sand(n=i*1000, critLevel=4)
-	sand.loop(steps=i*500)
-	print "loop ", i, " done"
-	print "===================="
-	graph = SandGraph(sand.graphs)
-	graph.show_largest_component("large_component.pdf")
-	#graph.subcomponent_stats()
-	#graph.degree_dist()
-	#print sand.graphs
-	#sand.loop(steps=20000)
-	#viewer = SandViewer(sand)
-	#viewer.animate(10000)
+	with open(something) as corpusFile:
+		corpus = corpusFile.readAll().split()
+		net = SandNet(corpus=corpus, critLevel=4)
+		output = net.loop(steps=1000)
+		print " ".join(output)
